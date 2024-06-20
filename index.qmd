@@ -1,0 +1,62 @@
+---
+title: "Percentage of People with Bachelor Degrees"
+execute: 
+  echo: FALSE
+  message: FALSE
+  warning: FALSE
+---
+```{r}
+library(tidycensus)
+library(tidyverse)
+library(leaflet)
+```
+
+```{r}
+la_bachelors <- get_acs(
+  geography = "tract",
+  variables = c(bachelors = "B15003_022", total_population = "B01003_001"),
+  state = "CA",
+  county = "Los Angeles County",
+  geometry = TRUE,
+  output = "wide"
+) %>%
+mutate(percentage = (bachelorsE / total_populationE) * 100)
+```
+
+```{r}
+pal <- colorNumeric(
+  palette = "YlGnBu",
+  domain = la_bachelors$percentage
+)
+
+leaflet(la_bachelors) %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(
+    fillColor = ~pal(percentage),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 5,
+      color = "#666",
+      dashArray = "",
+      fillOpacity = 0.7,
+      bringToFront = TRUE
+    ),
+    label = ~paste0("Tract: ", NAME, "<br>", "Percentage with Bachelor's: ", round(percentage, 2), "%"),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "15px",
+      direction = "auto"
+    )
+  ) %>%
+  addLegend(
+    pal = pal,
+    values = ~percentage,
+    opacity = 0.7,
+    title = "Percentage with Bachelor's Degree",
+    position = "bottomright"
+  )
+```
