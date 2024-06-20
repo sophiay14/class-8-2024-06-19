@@ -1,5 +1,5 @@
 ---
-title: "Percentage of People with Bachelor Degrees"
+title: "Percentage of People with Bachelor Degrees in LA"
 execute: 
   echo: FALSE
   message: FALSE
